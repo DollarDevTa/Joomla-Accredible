@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<help key="AccredibleCertificate:_Options"/>
+	<fieldset
+		name="page-options"
+		label="COM_ACCREDIBLECERTIFICATE_PAGE_OPTIONS_LABEL"
+		>
+		<field
+			name="api_key"
+			type="text"
+			label="COM_ACCREDIBLECERTIFICATE_API_KEY_LABEL"
+			default=""
+		/>
+		<field
+			name="default_group_id"
+			type="text"
+			label="COM_ACCREDIBLECERTIFICATE_DEFAULT_GROUP_ID_LABEL"
+		/>
+	</fieldset>
+
+	<fieldset
+		name="permissions"
+		label="JCONFIG_PERMISSIONS_LABEL"
+		description="JCONFIG_PERMISSIONS_DESC"
+		>
+		<field
+			name="rules"
+			type="rules"
+			label="JCONFIG_PERMISSIONS_LABEL"
+			filter="rules"
+			validate="rules"
+			component="com_accrediblecertificate"
+			section="component"
+		/>
+	</fieldset>
+</config>
