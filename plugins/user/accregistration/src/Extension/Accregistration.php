@@ -22,9 +22,9 @@ final class Accregistration extends CMSPlugin
         if ($isNew && $result ) {
 
 			$config   = ComponentHelper::getParams('com_accrediblecertificate');
-			$default_group_id = $config->get('default_group_id', '546130');
+			$default_group_id = $config->get('default_group_id', '584630');
 			
-			$api = new AccredibleCertificateHelper($config->get('api_key', 'ade377f959a7f522c67a948772f02bc6'), true);
+			$api = new AccredibleCertificateHelper($config->get('api_key', 'ade377f681a7f522c67a948765f02bc6'), true);
 			$new_credential = $api->create_credential($data['username'], $data['email1'], $default_group_id);
 
 			$db = $this->getDatabase();
