@@ -8,7 +8,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Component\AccredibleCertificate\Administrator\Service\Html;
+namespace Joomla\Component\Accrediblecertificate\Administrator\Service\Html;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -20,11 +20,11 @@ use Joomla\Database\DatabaseAwareTrait;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * Banner HTML class.
+ * Accrediblecertificate HTML class.
  *
  * @since  2.5
  */
-class AccredibleCertificate
+class Accrediblecertificate
 {
     use DatabaseAwareTrait;
 

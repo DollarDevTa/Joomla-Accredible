@@ -8,7 +8,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Component\AccredibleCertificate\Administrator\Controller;
+namespace Joomla\Component\Accrediblecertificate\Administrator\Controller;
 
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
@@ -23,42 +23,34 @@ use Joomla\Utilities\ArrayHelper;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * Credentials list controller class.
+ * Accrediblecertificates list controller class.
  *
  * @since  1.6
  */
-class AccredibleCertificatesController extends AdminController
+class AccrediblecertificatesController extends AdminController
 {
     /**
-     * Constructor.
+     * The prefix to use with controller messages.
      *
-     * @param   array                $config   An optional associative array of configuration settings.
-     * Recognized key values include 'name', 'default_task', 'model_path', and
-     * 'view_path' (this list is not meant to be comprehensive).
-     * @param   MVCFactoryInterface  $factory  The factory.
-     * @param   CMSApplication       $app      The Application for the dispatcher
-     * @param   Input                $input    Input
-     *
-     * @since   3.0
+     * @var    string
+     * @since  1.6
      */
-    public function __construct($config = [], MVCFactoryInterface $factory = null, $app = null, $input = null)
-    {
-        parent::__construct($config, $factory, $app, $input);
-    }
+    protected $text_prefix = 'COM_ACCREDIBLECERTIFICATE';
 
     /**
-     * Proxy for getModel.
+     * Method to get a model object, loading it if required.
      *
-     * @param   string  $name    The name of the model.
-     * @param   string  $prefix  The prefix for the PHP class name.
-     * @param   array   $config  Array of configuration parameters.
+     * @param   string  $name    The model name. Optional.
+     * @param   string  $prefix  The class prefix. Optional.
+     * @param   array   $config  Configuration array for model. Optional.
      *
-     * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel
+     * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel  The model.
      *
      * @since   1.6
      */
-    public function getModel($name = 'AccredibleCertificate', $prefix = 'Administrator', $config = ['ignore_request' => true])
+    public function getModel($name = 'Accrediblecertificate', $prefix = 'Administrator', $config = ['ignore_request' => true])
     {
         return parent::getModel($name, $prefix, $config);
-    }  
+    }
+
 }

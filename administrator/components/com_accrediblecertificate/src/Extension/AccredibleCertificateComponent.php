@@ -8,12 +8,18 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Component\AccredibleCertificate\Administrator\Extension;
+namespace Joomla\Component\Accrediblecertificate\Administrator\Extension;
 
+use Joomla\CMS\Categories\CategoryServiceInterface;
+use Joomla\CMS\Categories\CategoryServiceTrait;
+use Joomla\CMS\Component\Router\RouterServiceInterface;
+use Joomla\CMS\Component\Router\RouterServiceTrait;
 use Joomla\CMS\Extension\BootableExtensionInterface;
 use Joomla\CMS\Extension\MVCComponent;
 use Joomla\CMS\HTML\HTMLRegistryAwareTrait;
-use Joomla\Component\AccredibleCertificate\Administrator\Service\Html\AccredibleCertificate;
+use Joomla\CMS\Tag\TagServiceInterface;
+use Joomla\CMS\Tag\TagServiceTrait;
+use Joomla\Component\Accrediblecertificate\Administrator\Service\Html\Accrediblecertificate;
 use Joomla\Database\DatabaseInterface;
 use Psr\Container\ContainerInterface;
 
@@ -26,9 +32,18 @@ use Psr\Container\ContainerInterface;
  *
  * @since  4.0.0
  */
-class AccredibleCertificateComponent extends MVCComponent implements BootableExtensionInterface
+class AccrediblecertificateComponent extends MVCComponent implements
+    BootableExtensionInterface,
+    CategoryServiceInterface,
+    RouterServiceInterface,
+    TagServiceInterface
 {
     use HTMLRegistryAwareTrait;
+    use RouterServiceTrait;
+    use CategoryServiceTrait, TagServiceTrait {
+        CategoryServiceTrait::getTableNameForSection insteadof TagServiceTrait;
+        CategoryServiceTrait::getStateColumnForSection insteadof TagServiceTrait;
+    }
 
     /**
      * Booting the extension. This is the function to set up the environment of the extension like
@@ -43,10 +58,9 @@ class AccredibleCertificateComponent extends MVCComponent implements BootableExt
      *
      * @since   4.0.0
      */
-
-	  public function boot(ContainerInterface $container)
+    public function boot(ContainerInterface $container)
     {
-        $banner = new AccredibleCertificate();
+        $banner = new Accrediblecertificate();
         $banner->setDatabase($container->get(DatabaseInterface::class));
 
         $this->getRegistry()->register('accrediblecertificate', $banner);
@@ -63,6 +77,6 @@ class AccredibleCertificateComponent extends MVCComponent implements BootableExt
      */
     protected function getTableNameForSection(string $section = null)
     {
-        return 'accrediblecertificate';
+        return 'accrediblecertificates';
     }
 }

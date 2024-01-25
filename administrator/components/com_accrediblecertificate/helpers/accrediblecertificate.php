@@ -14,13 +14,13 @@
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * AccredibleCertificates component helper.
+ * Accrediblecertificate component helper.
  *
  * @since       1.6
  *
  * @deprecated  4.3 will be removed in 6.0
  *              Use \Joomla\Component\AccredibleCertificate\Administrator\Helper\AccredibleCertificateHelper instead
  */
-class AccredibleCertificateHelper extends \Joomla\Component\AccredibleCertificate\Administrator\Helper\AccredibleCertificateHelper
+class AccrediblecertificateHelper extends \Joomla\Component\Accrediblecertificate\Administrator\Helper\AccrediblecertificateHelper
 {
 }

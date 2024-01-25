@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-	<help key="AccredibleCertificate:_Options"/>
 	<fieldset
 		name="page-options"
 		label="COM_ACCREDIBLECERTIFICATE_PAGE_OPTIONS_LABEL"

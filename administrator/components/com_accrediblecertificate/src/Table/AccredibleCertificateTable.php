@@ -2,39 +2,37 @@
 
 /**
  * @package     Joomla.Administrator
- * @subpackage  com_jlms_coursequicksearch
+ * @subpackage  com_accrediblecertificate
  *
- * @copyright   (C) 2005 Open Source Matters, Inc. <https://www.joomla.org>
+ * @copyright   (C) 2024 Tatsiana Dev. All rights reserved. <https://www.joomla.org>
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Component\AccredibleCertificate\Administrator\Table;
+namespace Joomla\Component\Accrediblecertificate\Administrator\Table;
 
 use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\String\PunycodeHelper;
 use Joomla\CMS\Table\Table;
-use Joomla\CMS\Tag\TaggableTableInterface;
-use Joomla\CMS\Tag\TaggableTableTrait;
 use Joomla\CMS\Versioning\VersionableTableInterface;
 use Joomla\Database\DatabaseDriver;
-use Joomla\String\StringHelper;
+use Joomla\Database\ParameterType;
+use Joomla\Event\DispatcherInterface;
+use Joomla\Registry\Registry;
+use Joomla\Utilities\ArrayHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * Subject Table class.
+ * Accrediblecertificate table
  *
- * @since  1.0
+ * @since  1.5
  */
-class AccredibleCertificateTable extends Table implements VersionableTableInterface, TaggableTableInterface
+class AccrediblecertificateTable extends Table implements VersionableTableInterface
 {
-    use TaggableTableTrait;
-
     /**
      * Indicates that columns fully support the NULL value in the database
      *
@@ -44,49 +42,26 @@ class AccredibleCertificateTable extends Table implements VersionableTableInterf
     protected $_supportNullValue = true;
 
     /**
-     * Ensure the params and metadata in json encoded in the bind method
-     *
-     * @var    array
-     * @since  3.3
-     */
-    protected $_jsonEncode = ['params', 'metadata'];
-
-    /**
      * Constructor
      *
-     * @param   DatabaseDriver  $db  Database connector object
+     * @param   DatabaseDriver        $db          Database connector object
+     * @param   ?DispatcherInterface  $dispatcher  Event dispatcher for this table
      *
-     * @since   1.0
+     * @since   1.5
      */
-    public function __construct(DatabaseDriver $db)
+    public function __construct(DatabaseDriver $db, DispatcherInterface $dispatcher = null)
     {
+        $this->typeAlias = 'com_accrediblecertificate.accrediblecertificate';
 
-        $this->typeAlias = 'com_accrediblecertificate.accredibleCertificate';
-
-        parent::__construct('#__accrediblecertificate', 'id', $db);
-
-    }
-
-    /**
-     * Stores a subject.
-     *
-     * @param   boolean  $updateNulls  True to update fields even if they are null.
-     *
-     * @return  boolean  True on success, false on failure.
-     *
-     * @since   1.6
-     */
-    public function store($updateNulls = true)
-    {
-        return parent::store($updateNulls);
+        parent::__construct('#__accrediblecertificate', 'id', $db, $dispatcher);
     }
 
     /**
      * Overloaded check function
      *
-     * @return  boolean  True on success, false on failure
+     * @return  boolean
      *
-     * @see     \JTable::check
+     * @see     Table::check
      * @since   1.5
      */
     public function check()
@@ -98,16 +73,24 @@ class AccredibleCertificateTable extends Table implements VersionableTableInterf
 
             return false;
         }
-
-        $this->default_con = (int) $this->default_con;
-
-        if ($this->webpage !== null && InputFilter::checkAttribute(['href', $this->webpage])) {
-            $this->setError(Text::_('COM_CONTACT_WARNING_PROVIDE_VALID_URL'));
-
-            return false;
-        }
-
+   
         return true;
+    }
+
+    /**
+     * Method to store a row
+     *
+     * @param   boolean  $updateNulls  True to update fields even if they are null.
+     *
+     * @return  boolean  True on success, false on failure.
+     */
+    public function store($updateNulls = true)
+    {
+        $db = $this->getDbo();
+        // Store the row
+        parent::store($updateNulls);
+     
+        return \count($this->getErrors()) == 0;
     }
 
     /**
@@ -117,8 +100,8 @@ class AccredibleCertificateTable extends Table implements VersionableTableInterf
      *
      * @since   4.0.0
      */
-   public function getTypeAlias()
-   {
+    public function getTypeAlias()
+    {
         return $this->typeAlias;
     }
 }

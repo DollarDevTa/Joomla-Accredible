@@ -7,8 +7,7 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-
-namespace Joomla\Component\AccredibleCertificate\Administrator\Helper;
+namespace Joomla\Component\Accrediblecertificate\Administrator\Helper;
 
 use Joomla\CMS\Helper\ContentHelper;
 
@@ -21,9 +20,9 @@ use Joomla\CMS\Helper\ContentHelper;
  *
  * @since  1.6
  */
-class AccredibleCertificateHelper extends ContentHelper
+class AccrediblecertificateHelper extends ContentHelper
 {
-	
+
 	private $api_key;
 
 	private $api_endpoint = "https://api.accredible.com/v1/";

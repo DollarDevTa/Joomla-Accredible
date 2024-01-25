@@ -8,73 +8,79 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Component\AccredibleCertificate\Administrator\View\AccredibleCertificate;
+namespace Joomla\Component\Accrediblecertificate\Administrator\View\Accrediblecertificate;
 
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\Helper\ContentHelper;
-use Joomla\CMS\Language\Associations;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\Component\Accrediblecertificate\Administrator\Model\AccrediblecertificateModel;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * View to edit a contact.
+ * View to edit a accrediblecertificate.
  *
- * @since  1.6
+ * @since  1.5
  */
 class HtmlView extends BaseHtmlView
 {
     /**
      * The Form object
      *
-     * @var  \Joomla\CMS\Form\Form
+     * @var    Form
+     * @since  1.5
      */
     protected $form;
 
     /**
      * The active item
      *
-     * @var  object
+     * @var    object
+     * @since  1.5
      */
     protected $item;
 
     /**
      * The model state
      *
-     * @var  \Joomla\Registry\Registry
+     * @var    object
+     * @since  1.5
      */
     protected $state;
 
     /**
-     * Display the view.
+     * Display the view
      *
      * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
      *
      * @return  void
+     *
+     * @since   1.5
+     *
+     * @throws  \Exception
      */
-    public function display($tpl = null)
+    public function display($tpl = null): void
     {
-        // Initialise variables.
-        $this->form  = $this->get('Form');
-        $this->item  = $this->get('Item');
-        $this->state = $this->get('State');
+        /** @var BannerModel $model */
+        $model       = $this->getModel();
+        $this->form  = $model->getForm();
+        $this->item  = $model->getItem();
+        $this->state = $model->getState();
 
         // Check for errors.
         if (\count($errors = $this->get('Errors'))) {
             throw new GenericDataException(implode("\n", $errors), 500);
         }
-   
 
-        if ($this->getLayout() !== 'modal') {
-            $this->addToolbar();
-        }
+        $this->addToolbar();
 
         parent::display($tpl);
     }
@@ -85,8 +91,9 @@ class HtmlView extends BaseHtmlView
      * @return  void
      *
      * @since   1.6
+     * @throws  \Exception
      */
-    protected function addToolbar()
+    protected function addToolbar(): void
     {
         Factory::getApplication()->getInput()->set('hidemainmenu', true);
 
@@ -96,47 +103,45 @@ class HtmlView extends BaseHtmlView
         $toolbar    = Toolbar::getInstance();
 
         // Since we don't track these assets at the item level, use the category id.
-        $canDo = true;
+        $canDo = ContentHelper::getActions('com_accrediblecertificate', 'accrediblecertificate', $this->item->id);
 
-        ToolbarHelper::title($isNew ? Text::_('COM_ACCREDIBLECERTIFICATE_ADD') : Text::_('COM_ACCREDIBLECERTIFICATE_EDIT'), 'address-book contact');
+        ToolbarHelper::title($isNew ? Text::_('COM_ACCREDIBLECERTIFICATE_ADD') : Text::_('COM_ACCREDIBLECERTIFICATE_EDIT'), 'bookmark banners');
 
-
-        // Since it's an existing record, check the edit permission, or fall back to edit own if the owner.
-        $itemEditable = true;//$canDo->get('core.edit') || ($canDo->get('core.edit.own') && $this->item->created_by == $userId);
-
-        // Can't save the record if it's checked out and editable
-        if ( $itemEditable) {
+        // If not checked out, can save the item.
+        if ( ($canDo->get('core.edit') || \count($user->getAuthorisedCategories('com_accrediblecertificate', 'core.create')) > 0)) {
             $toolbar->apply('accrediblecertificate.apply');
         }
 
         $saveGroup = $toolbar->dropdownButton('save-group');
 
         $saveGroup->configure(
-            function (Toolbar $childBar) use ($itemEditable, $canDo, $user) {
-                // Can't save the record if it's checked out and editable
-                if ( $itemEditable) {
+            function (Toolbar $childBar) use ( $canDo, $user, $isNew) {
+                // If not checked out, can save the item.
+                if  ($canDo->get('core.edit') || \count($user->getAuthorisedCategories('com_accrediblecertificate', 'core.create')) > 0) {
                     $childBar->save('accrediblecertificate.save');
-                    // We can save this record, but check the create permission to see if we can return to make a new one.
+
+                    if ($canDo->get('core.create')) {
+                        $childBar->save2new('accrediblecertificate.save2new');
+                    }
                 }
 
-                // If checked out, we can still save2menu
-                if ($user->authorise('core.create', 'com_menus.menu')) {
-                    $childBar->save('accrediblecertificate.save2menu', 'JTOOLBAR_SAVE_TO_MENU');
+                // If an existing item, can save to a copy.
+                if (!$isNew && $canDo->get('core.create')) {
+                    $childBar->save2copy('accrediblecertificate.save2copy');
                 }
             }
         );
 
-        $toolbar->cancel('accrediblecertificate.cancel');
+        if (empty($this->item->id)) {
+            $toolbar->cancel('accrediblecertificate.cancel', 'JTOOLBAR_CANCEL');
+        } else {
+            $toolbar->cancel('accrediblecertificate.cancel');
 
-        if (ComponentHelper::isEnabled('com_contenthistory') && $this->state->params->get('save_history', 0) && $itemEditable) {
-            $toolbar->versions('com_accrediblecertificate.accrediblecertificate', $this->item->id);
+            if (ComponentHelper::isEnabled('com_contenthistory') && $this->state->params->get('save_history', 0) && $canDo->get('core.edit')) {
+                $toolbar->versions('com_accrediblecertificate.accrediblecertificate', $this->item->id);
+            }
         }
 
-        if (Associations::isEnabled() && ComponentHelper::isEnabled('com_associations')) {
-            $toolbar->standardButton('accrediblecertificate', 'JTOOLBAR_ASSOCIATIONS', 'accrediblecertificate.editAssociations')
-                ->icon('icon-contract')
-                ->listCheck(false);
-        }
         $toolbar->divider();
     }
 }

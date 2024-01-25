@@ -23,13 +23,13 @@
 		<field
 			name="url_badge"
 			type="text"
-			label="COM_ACCREDIBLECERTIFICATE_LABEL_URL_IMAGE"
+			label="COM_ACCREDIBLECERTIFICATE_LABEL_URL_BADGE"
 			
 		/>
 		<field
 			name="url_image"
 			type="text"
-			label="COM_ACCREDIBLECERTIFICATE_LABEL_URL_BADGE"
+			label="COM_ACCREDIBLECERTIFICATE_LABEL_URL_IMAGE"
 
 		/>
 		<field

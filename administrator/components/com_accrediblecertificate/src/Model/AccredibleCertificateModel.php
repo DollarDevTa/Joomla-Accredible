@@ -2,40 +2,43 @@
 
 /**
  * @package     Joomla.Administrator
- * @subpackage  com_jlms_coursequicksearch
+ * @subpackage  com_accrediblecertificate
  *
- * @copyright   (C) 2008 Open Source Matters, Inc. <https://www.joomla.org>
+ * @copyright   (C) 2024 Tatsiana Dev. All rights reserved. <https://www.joomla.org>
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
-namespace Joomla\Component\AccredibleCertificate\Administrator\Model;
+namespace Joomla\Component\Accrediblecertificate\Administrator\Model;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use Joomla\CMS\Helper\TagsHelper;
-use Joomla\CMS\Language\Associations;
-use Joomla\CMS\Language\LanguageHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
-use Joomla\CMS\String\PunycodeHelper;
+use Joomla\CMS\Table\Table;
+use Joomla\CMS\Table\TableInterface;
 use Joomla\CMS\Versioning\VersionableModelTrait;
-use Joomla\Component\Categories\Administrator\Helper\CategoriesHelper;
 use Joomla\Database\ParameterType;
-use Joomla\Registry\Registry;
-use Joomla\Utilities\ArrayHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * Item Model for a Subject.
+ * Accrediblecertificate model.
  *
  * @since  1.6
  */
-class AccredibleCertificateModel extends AdminModel
+class AccrediblecertificateModel extends AdminModel
 {
     use VersionableModelTrait;
+
+    /**
+     * The prefix to use with controller messages.
+     *
+     * @var    string
+     * @since  1.6
+     */
+    protected $text_prefix = 'COM_ACCREDIBLECERTIFICATE';
 
     /**
      * The type alias for this content type.
@@ -46,83 +49,25 @@ class AccredibleCertificateModel extends AdminModel
     public $typeAlias = 'com_accrediblecertificate.accrediblecertificate';
 
     /**
-     * The context used for the associations table
+     * Method to get the record form.
      *
-     * @var    string
-     * @since  3.4.4
-     */
-    protected $associationsContext = 'com_accrediblecertificate.item';
-
-    /**
-     * Name of the form
+     * @param   array    $data      Data for the form. [optional]
+     * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not. [optional]
      *
-     * @var string
-     * @since  4.0.0
-     */
-    protected $formName = 'accrediblecertificate';
-
-    protected function canDelete($record)
-    {
-        if (empty($record->id) || $record->published != -2) {
-            return false;
-        }
-
-        return $this->getCurrentUser()->authorise('core.delete', 'com_accrediblecertificate.accrediblecertificate.' . (int) $record->id);
-    }
-
-    protected function canEditState($record)
-    {
-        // Default to component settings if category not known.
-        return parent::canEditState($record);
-    }
-
-    /**
-     * Method to get the row form.
-     * @param   array    $data      Data for the form.
-     * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
      * @return  Form|boolean  A Form object on success, false on failure
+     *
      * @since   1.6
      */
     public function getForm($data = [], $loadData = true)
     {
-        Form::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_accrediblecertificate/models/fields');
-
         // Get the form.
-        $form = $this->loadForm('com_accrediblecertificate.' . $this->formName, $this->formName, ['control' => 'jform', 'load_data' => $loadData]);
+        $form = $this->loadForm('com_accrediblecertificate.accrediblecertificate', 'accrediblecertificate', ['control' => 'jform', 'load_data' => $loadData]);
 
         if (empty($form)) {
             return false;
         }
+
         return $form;
-    }
-
-    /**
-     * Method to get a single record.
-     *
-     * @param   integer  $pk  The id of the primary key.
-     *
-     * @return  mixed  Object on success, false on failure.
-     *
-     * @since   1.6
-     */
-    public function getItem($pk = null)
-    {
-		
-        $result = parent::getItem($pk);
-		/*if ($result) {
-			$db      = $this->getDatabase();
-            $query   = $db->getQuery(true);
-            $fieldId = (int) $result->id;
-            $query->select($db->quoteName('id'))
-                ->from($db->quoteName('#__accrediblecertificate'))
-                ->where($db->quoteName('subject_id') . ' = :fieldid')
-                ->bind(':fieldid', $fieldId, ParameterType::INTEGER);
-
-            $db->setQuery($query);
-            $result->assigned_states_ids = $db->loadColumn() ?: [0];
-		
-		}*/
-        return $result;
     }
 
     /**
@@ -134,13 +79,20 @@ class AccredibleCertificateModel extends AdminModel
      */
     protected function loadFormData()
     {
-        $app = Factory::getApplication();
-
         // Check the session for previously entered form data.
+        $app  = Factory::getApplication();
         $data = $app->getUserState('com_accrediblecertificate.edit.accrediblecertificate.data', []);
 
         if (empty($data)) {
             $data = $this->getItem();
+
+            // Prime some default values.
+            if ($this->getState('accrediblecertificate.id') == 0) {
+                $filters     = (array) $app->getUserState('com_accrediblecertificate.accrediblecertificates.filter');
+                $filterCatId = $filters['category_id'] ?? null;
+
+                $data->set('catid', $app->getInput()->getInt('catid', $filterCatId));
+            }
         }
 
         $this->preprocessData('com_accrediblecertificate.accrediblecertificate', $data);
@@ -149,55 +101,19 @@ class AccredibleCertificateModel extends AdminModel
     }
 
     /**
-     * Method to save the form data.
+     * Allows preprocessing of the Form object.
      *
-     * @param   array  $data  The form data.
-     *
-     * @return  boolean  True on success.
-     *
-     * @since   3.0
-     */
-    public function save($data)
-    {
-		$input = Factory::getApplication()->getInput();
-       
-        if (!parent::save($data)) {
-            return false;
-        }
-
-       
-		$db = $this->getDatabase();
-		$id = (int) $this->getState('accrediblecertificate.id');
-        // First delete all assigned states
-        $query = $db->getQuery(true);
-        $query->delete('#__accrediblecertificate')
-            ->where($db->quoteName('id') . ' = :fieldid')
-            ->bind(':fieldid', $id, ParameterType::INTEGER);
-
-        $db->setQuery($query);
-        $db->execute();
-
-     
-		//FieldsHelper::clearFieldsCache();
-
-        return true;
-    }
-
-    /**
-     * Preprocess the form.
-     *
-     * @param   Form    $form   Form object.
-     * @param   object  $data   Data object.
-     * @param   string  $group  Group name.
+     * @param   Form    $form   The form object
+     * @param   array   $data   The data to be merged into the form object
+     * @param   string  $group  The plugin group to be executed
      *
      * @return  void
      *
-     * @since   3.0.3
+     * @since    3.6.1
      */
     protected function preprocessForm(Form $form, $data, $group = 'content')
     {
         parent::preprocessForm($form, $data, $group);
     }
 
- 
 }
